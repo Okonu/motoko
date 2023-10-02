@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>To-Do List</title>
+</head>
+<body>
+  <header>
+    <h1>Welcome to Your To-Do List</h1>
+  </header>
+  
+  <section id="task-form">
+    <h2>Add a New Task</h2>
+    <form id="add-task-form">
+      <input type="text" id="task-text" placeholder="Enter your task" required>
+      <button type="submit">Add Task</button>
+    </form>
+  </section>
+  
+  <section id="task-list">
+    <h2>Your Tasks</h2>
+    <ul id="tasks">
+      <!-- Task items will be dynamically generated here -->
+    </ul>
+  </section>
+  
+  <footer>
+    <p>&copy; 2023 Your To-Do App</p>
+  </footer>
+
+  <script>
+    // Function to fetch tasks from the Motoko backend and display them
+    async function fetchTasks() {
+      const response = await fetch('http://your-backend-url/tasks', {
+        method: 'GET',
+      });
+      const tasks = await response.json();
+      
+      const tasksList = document.getElementById('tasks');
+      tasksList.innerHTML = '';
+
+      tasks.forEach((task) => {
+        const listItem = document.createElement('li');
+        listItem.textContent = task.text;
+        tasksList.appendChild(listItem);
+      });
+    }
+
+    // Function to add a new task to the Motoko backend
+    async function addTask(taskText) {
+      const response = await fetch('http://your-backend-url/tasks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: taskText }),
+      });
+      return response.ok;
+    }
+
+    // Event listener for the task submission form
+    const addTaskForm = document.getElementById('add-task-form');
+    addTaskForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const taskText = document.getElementById('task-text').value;
+      const success = await addTask(taskText);
+      if (success) {
+        // Clear the input field and refresh the task list
+        document.getElementById('task-text').value = '';
+        fetchTasks();
+      } else {
+        alert('Failed to add task. Please try again.');
+      }
+    });
+
+    // Fetch tasks when the page loads
+    fetchTasks();
+  </script>
+</body>
+</html>
